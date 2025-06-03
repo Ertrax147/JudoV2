@@ -1,18 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"> <!-- ASEGÚRATE DE ESTO -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Judokas</title>
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .error-message-specific {
+      color: var(--rojo-error, red);
+      text-align: center;
+      padding: 10px;
+      margin-top: 15px;
+      border: 1px solid var(--rojo-error, red);
+      background-color: #ffe0e0;
+      border-radius: 5px;
+    }
+    .clickable-row {
+      cursor: pointer;
+    }
+    .clickable-row:hover {
+      background-color: #f0f0f0; /* Considera usar var(--gris-claro) o similar */
+    }
+  </style>
 </head>
 <body>
 <header class="header blue-header">
   <h1>Lista de Judokas</h1>
-  <a href="/static" class="btn header-btn">Inicio</a>
+  <a th:href="@{/}" class="btn header-btn">Inicio</a>
 </header>
 
 <div class="table-container">
+  <div th:if="${param.error == 'noEncontrado'}" class="error-message-specific">
+    El judoka solicitado no ha sido encontrado.
+  </div>
+
   <table class="styled-table">
     <thead>
     <tr>
@@ -23,17 +44,35 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="judoka : ${judokas}">
+    <tr th:each="judoka : ${judokas}"
+        class="clickable-row"
+        th:data-href="@{/judoka/perfil/{id}(id=${judoka.id})}"> <!-- USANDO th:data-href -->
       <td th:text="${judoka.id}"></td>
       <td th:text="${judoka.nombre}"></td>
       <td th:text="${judoka.apellido}"></td>
       <td th:text="${judoka.categoria}"></td>
     </tr>
+    <tr th:if="${#lists.isEmpty(judokas)}">
+      <td colspan="4" style="text-align: center;">No hay judokas registrados.</td>
+    </tr>
     </tbody>
   </table>
 </div>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.clickable-row');
+    rows.forEach(row => {
+      row.addEventListener('click', function() {
+        // 'this' se refiere al elemento 'tr' que fue clickeado
+        const href = this.dataset.href; // Accede a data-href
+        if (href) {
+          window.location.href = href;
+        }
+      });
+    });
+  });
+</script>
 
-</div>
 </body>
 </html>
