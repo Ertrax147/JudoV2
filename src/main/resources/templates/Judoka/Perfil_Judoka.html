@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Perfil Judoka - JSCORE</title>
+    <title th:text="${judoka != null ? judoka.nombre + ' ' + judoka.apellido + ' - Perfil' : 'Perfil Judoka'} + ' - JSCORE'">Perfil Judoka - JSCORE</title>
     <style>
         :root {
             --negro-suave: #1e1e1e;
@@ -26,6 +26,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: var(--negro-suave);
         }
 
         .header h3 {
@@ -64,11 +65,11 @@
             padding-bottom: 50px;
         }
 
-        .photo-circle {
+        .photo-circle { /* Este es el estilo base si no hay foto */
             width: 160px;
             height: 160px;
             border-radius: 50%;
-            background-color: var(--gris-claro);
+            background-color: var(--gris-claro); /* Color de fondo por defecto */
             border: 4px solid white;
         }
 
@@ -76,9 +77,14 @@
             background-color: var(--blanco);
             text-align: center;
             padding: 3rem 1rem 2rem;
+            margin-top: -80px;
+            position: relative;
+            z-index: 10;
+            color: var(--negro-suave);
         }
 
         .profile-container h2 {
+            margin-top: 70px;
             margin-bottom: 1.5rem;
         }
 
@@ -90,7 +96,12 @@
         }
 
         .info-list p {
-            margin: 6px 0;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .info-list strong {
+            color: #333;
+            margin-right: 5px;
         }
 
         .buttons {
@@ -106,45 +117,60 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            color: var(--negro-suave);
         }
 
         .buttons button:hover {
             background-color: #bbbbbb;
         }
+        .message-container {
+            padding: 20px;
+            text-align: center;
+            color: var(--blanco);
+        }
     </style>
 </head>
 <body>
 
-<!-- Encabezado -->
 <div class="header">
     <h3>JSCORE</h3>
     <div class="nav-links">
-        <a href="/static">Inicio</a>
-        <a href="/clubs">Clubs</a>
-        <a href="/rankings">Rankings</a>
+        <a th:href="@{/}">Inicio</a>
+        <a th:href="@{/lista}">Clubs</a>
+        <a th:href="@{/torneos}">Rankings/Torneos</a>
         <div class="profile-icon">👤</div>
     </div>
 </div>
 
-<!-- Banner con imagen circular -->
-<div class="banner">
-    <div class="photo-circle"></div>
+<div th:if="${judoka != null}">
+    <div class="banner">
+        <div class="photo-circle">
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <h2 th:text="${judoka.nombre != null ? judoka.nombre + ' ' + judoka.apellido : 'Nombre no disponible'}">NOMBRE DEL JUDOKA</h2>
+        <div class="info-list">
+            <p><strong>ID:</strong> <span th:text="${judoka.id}">0</span></p>
+            <p><strong>Correo (Username):</strong> <span th:text="${judoka.username ?: 'No especificado'}">correo@ejemplo.com</span></p>
+            <p><strong>Fecha de Nacimiento:</strong> <span th:text="${judoka.fechaNacimiento ?: 'No especificada'}">DD/MM/AAAA</span></p>
+            <p><strong>Categoría:</strong> <span th:text="${judoka.categoria ?: 'No especificada'}">-66kg</span></p>
+            <p><strong>Club:</strong> <span th:text="${judoka.club != null && judoka.club.nombre != null ? judoka.club.nombre : 'Sin club asignado'}">Judo Lonquimay</span></p>
+            <p><strong>Victorias:</strong> <span th:text="${judoka.victorias}">0</span></p>
+            <p><strong>Derrotas:</strong> <span th:text="${judoka.derrotas}">0</span></p>
+            <p><strong>Empates:</strong> <span th:text="${judoka.empates}">0</span></p>
+        </div>
+        <div class="buttons">
+            <button type="button" disabled>Editar Perfil</button>
+            <button type="button" disabled>Ver Estadísticas</button>
+        </div>
+    </div>
 </div>
 
-<!-- Contenido del perfil -->
-<div class="profile-container">
-    <h2>NOMBRE DEL JUDOKA</h2>
-    <div class="info-list">
-        <p><strong>Años de entrenamiento:</strong> 5</p>
-        <p><strong>Oficio/Profesión:</strong> Estudiante</p>
-        <p><strong>Edad:</strong> 21</p>
-        <p><strong>Categoría:</strong> -66kg</p>
-        <p><strong>Club:</strong> Judo Lonquimay</p>
-    </div>
-    <div class="buttons">
-        <button>Editar Perfil</button>
-        <button>Ver Estadísticas</button>
-    </div>
+<div th:unless="${judoka != null}" class="message-container">
+    <h2>Judoka no encontrado</h2>
+    <p>El perfil del judoka que intentas ver no existe o no está disponible.</p>
+    <p><a th:href="@{/judokas}" style="color: var(--azul-link, blue);">Volver a la lista de judokas</a></p>
 </div>
 
 </body>
