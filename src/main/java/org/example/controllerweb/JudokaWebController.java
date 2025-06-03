@@ -8,10 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.example.model.logger.LoggerManager;
+import org.springframework.web.bind.annotation.PathVariable; // ¡NUEVA IMPORTACIÓN!
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional; // ¡NUEVA IMPORTACIÓN!
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,6 +58,28 @@ public class JudokaWebController {
         return "Judoka/judoka_home";
     }
 
+    // --- NUEVO MÉTODO PARA VER EL PERFIL DEL JUDOKA ---
+    @GetMapping("/judoka/perfil/{id}")
+    public String verPerfilJudoka(@PathVariable("id") Long id, Model model, HttpSession session) {
+        // Opcional: Verificar si el usuario está logueado si es necesario para ver perfiles
+        // String currentUserType = (String) session.getAttribute("tipo");
+        // if (session.getAttribute("username") == null) {
+        //     return "redirect:/login";
+        // }
+
+        Optional<Judoka> judokaOpt = judokaService.findById(id); // Asume que tienes judokaService.findById(id)
+
+        if (judokaOpt.isPresent()) {
+            model.addAttribute("judoka", judokaOpt.get());
+            return "Judoka/perfil_judoka"; // Nombre de tu plantilla de perfil
+        } else {
+            logger.log(Level.WARNING, "Intento de acceso a perfil de judoka no encontrado con ID: " + id);
+            // Redirige a la lista de judokas con un parámetro de error
+            return "redirect:/judokas?error=noEncontrado";
+        }
+    }
+    // --- FIN DEL NUEVO MÉTODO --
+
     @GetMapping("/registro-judoka")
     public String showRegistroJudoka() {
         return "Judoka/registro_judoka";
@@ -88,7 +112,7 @@ public class JudokaWebController {
 
         Judoka nuevo = new Judoka();
         nuevo.setUsername(username);
-        nuevo.setPassword(password);
+        nuevo.setPassword(password); // ¡NO GUARDAR EN TEXTO PLANO EN PRODUCCIÓN!
         nuevo.setNombre(nombre);
         nuevo.setApellido(apellido);
         nuevo.setCategoria(categoria);
