@@ -83,4 +83,9 @@ public class JudokaService {
     public List<Judoka> buscarPorIds(List<Long> participantes) {
         return judokaRepository.findAllById(participantes);
     }
+
+    // Dentro de tu clase JudokaService
+    public Optional<Judoka> findById(Long id) {
+        return judokaRepository.findById(id); // Asumiendo que tienes judokaRepository inyectado
+    }
 }
